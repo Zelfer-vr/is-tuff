@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy Portal</title>
+
+  <link rel="icon" type="image/png" sizes="16x16" href="idk.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="idk.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="idk.png">
+  <link rel="shortcut icon" href="idk.png">
+  <link id="theme-link" rel="stylesheet" href="DStyles.css">
+</head>
+<body style="margin:0;display:flex;flex-direction:column;height:100vh;">
+
+  <header>
+    <h1>Notadealer's Portal</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="Games.html">Games</a>
+      <a href="Proxy.html">Proxy</a>
+      <a href="Settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <iframe id="proxy-frame"
+    src="https://ec2-3-15-67-111.us-east-2.compute.amazonaws.com/search?query=Z2FtZXM%3D&proxy=aHR0cHM6Ly9kZXZlbG9wbWVudC5jaHVyY2hpbmh1bnRzdmlsbGUub3JnL3Byb2plY3Rz"
+    style="flex:1;border:none;width:100%;">
+  </iframe>
+
+<div id="lock-screen" style="
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: black url('Cloak.png') center center / cover no-repeat;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: red;
+      font-size: 2em;
+      text-align: center;
+      z-index: 9999;
+      ">
+    </div>
+
+  <script>
+  const allowedIPs = ["73.99.139.212",];
+  const lockScreen = document.getElementById("lock-screen");
+  const themeLink = document.getElementById('theme-link');
+  const favicon = document.querySelector("link[rel~='icon']");
+
+  (async () => {
+    if (sessionStorage.getItem("accessGranted")) return;
+
+try {
+    const res = await fetch("https://checkip.amazonaws.com");
+    const ip = (await res.text()).trim(); // plain text, not JSON
+
+    if (!allowedIPs.includes(ip)) {
+        lockScreen.style.display = "flex";
+        return;
+    }
+
+    sessionStorage.setItem("accessGranted", "true");
+} catch (err) {
+    console.error("IP check failed:", err);
+    lockScreen.style.display = "flex";
+}
+  })();
+
+    const savedTheme = localStorage.getItem('selectedTheme');
+    if (savedTheme) themeLink.href = savedTheme;
+
+    const buttons = document.querySelectorAll('.theme-btn[data-theme]');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const theme = btn.dataset.theme;
+        themeLink.href = theme;
+        localStorage.setItem('selectedTheme', theme);
+      });
+    });
+
+    const titleInput = document.getElementById('tab-title');
+    const iconInput = document.getElementById('tab-icon');
+    const applyBtn = document.getElementById('apply-tab-settings');
+
+    const savedTitle = localStorage.getItem('tabTitle');
+    const savedIcon = localStorage.getItem('tabIcon');
+
+    if (savedTitle) document.title = savedTitle;
+    if (savedIcon) favicon.href = savedIcon;
+    if (titleInput) titleInput.value = savedTitle || '';
+    if (iconInput) iconInput.value = savedIcon || '';
+
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        const newTitle = titleInput.value.trim();
+        const newIcon = iconInput.value.trim();
+
+        if (newTitle) {
+          document.title = newTitle;
+          localStorage.setItem('tabTitle', newTitle);
+        }
+
+        if (newIcon) {
+          favicon.href = newIcon;
+          localStorage.setItem('tabIcon', newIcon);
+        }
+
+        alert('Tab settings applied!');
+      });
+    }
+  </script>
+
+</body>
+</html>
